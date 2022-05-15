@@ -33,7 +33,6 @@
 (define (consecutive-id? a b)
   (eq? a (- b 2)))
 
-;; TODO(hnosm) is there a less ugly way to write sliding window?
 (define (part2)
   (let* ([seat-ids (sort (map make-seat-id input) <)]
          [from-i 0]
@@ -42,3 +41,24 @@
                 #:when (consecutive-id? (list-ref seat-ids i)
                                         (list-ref seat-ids (add1 i))))
       (+ (list-ref seat-ids i) 1))))
+
+;; Part 2 (using alternate sliding window method)
+(define (list-fits-window? lst window-size)
+  (cond
+    [(= window-size 0) #t]
+    [(empty? lst) #f]
+    [else (list-fits-window? (cdr lst) (sub1 window-size))]))
+
+(define (sliding-window lst window-size predicate)
+  (cond
+    [(not (list-fits-window? lst window-size)) '()]
+    [else (let ([window (take lst window-size)])
+            (if (predicate window)
+                window
+                (sliding-window (drop lst window-size) window-size predicate)))]))
+
+(define (part2-alt)
+  (let ([ids (sliding-window (sort (map make-seat-id input) <)
+                             2
+                             (lambda (ids) (consecutive-id? (car ids) (cadr ids))))])
+    (+ (car ids) 1)))
