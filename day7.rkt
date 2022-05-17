@@ -40,7 +40,6 @@
 (define (make-input)
   (define nodes (make-hash))
   (for ([line (file->lines "inputs/day7.txt")])
-  ;;(for ([line (file->lines "t.txt")])
     (let* ([rulecc (parse-result! (parse-string input-line/p line))]
            [rule-subject (car rulecc)]
            [rule-children (cdr rulecc)]
@@ -77,3 +76,15 @@
                       (set! cnt (+ cnt 1)))
                     (hash-ref input "shiny gold"))
   cnt)
+
+;; Part 2
+(define (count-children node)
+  (for/sum ([childcc (node-children node)])
+    (let* ([child-cnt (car childcc)]
+           [child-subject (cdr childcc)]
+           [child (hash-ref input child-subject)])
+      (+ child-cnt
+         (* child-cnt (count-children child))))))
+
+(define (part2)
+  (count-children (hash-ref input "shiny gold")))
